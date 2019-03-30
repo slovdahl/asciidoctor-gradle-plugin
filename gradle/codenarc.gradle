@@ -15,19 +15,6 @@
  */
 
 apply plugin : 'codenarc'
-apply plugin : 'org.kordamp.gradle.licensing'
-
-license {
-    header = rootProject.file('config/HEADER')
-    strictCheck = true
-    ignoreFailures = false
-    mapping {
-        java   = 'SLASHSTAR_STYLE'
-        groovy = 'SLASHSTAR_STYLE'
-    }
-//    ext.year = project.copyrightYear
-    excludes(['**/*.ad', '**/*.asciidoc', '**/*.adoc', '**/fake.txt', '**/*.zip'])
-}
 
 dependencies {
     codenarc "org.codenarc:CodeNarc:${codenarcVersion}"
@@ -56,7 +43,6 @@ pluginManager.withPlugin('jacoco') {
         mustRunAfter test
     }
 }
-
 
 task codenarcAll {
     group 'verification'
