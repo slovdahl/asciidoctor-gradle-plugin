@@ -19,6 +19,7 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.ysb33r.grolifant.api.v4.AbstractCombinedProjectTaskExtension
+import org.ysb33r.grolifant.api.v4.StringUtils
 
 import static org.ysb33r.grolifant.api.v4.StringUtils.stringize
 
@@ -249,8 +250,12 @@ abstract class AbstractImplementationEngineExtension
         super(project)
         this.safeMode = SafeMode.UNSAFE
         this.attributes['gradle-project-name'] = project.name
-        this.attributes['gradle-project-group'] = { project.group ?: '' }
-        this.attributes['gradle-project-version'] = { project.version ?: '' }
+        this.attributes['gradle-project-group'] = project.provider({ String val ->
+            (!val || val == 'undefined') ? '' : StringUtils.stringize(val)
+        }.curry(project.group))
+        this.attributes['gradle-project-version'] = project.provider({ String val ->
+            (!val || val == 'undefined') ? '' : StringUtils.stringize(val)
+        }.curry(project.version))
         this.defaultVersionMap = ModuleVersionLoader.load(moduleResourceName)
     }
 

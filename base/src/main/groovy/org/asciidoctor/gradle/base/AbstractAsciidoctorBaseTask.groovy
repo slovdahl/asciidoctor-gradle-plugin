@@ -536,7 +536,7 @@ abstract class AbstractAsciidoctorBaseTask extends DefaultTask {
                 Transform.toList(languages) { String lang ->
                     getOutputDirFor(backend, lang)
                 }
-            }.toSet()
+            }.toSet() as Set<File>
         }
     }
 

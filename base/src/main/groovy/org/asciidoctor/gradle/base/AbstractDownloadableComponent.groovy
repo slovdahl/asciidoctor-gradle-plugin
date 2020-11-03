@@ -20,6 +20,7 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.UnknownDomainObjectException
+import org.ysb33r.grolifant.api.core.ProjectOperations
 import org.ysb33r.grolifant.api.v4.git.AbstractCloudGit
 import org.ysb33r.grolifant.api.v4.git.GitRepoArchiveDownloader
 
@@ -34,7 +35,7 @@ import static org.asciidoctor.gradle.base.AsciidoctorUtils.executeDelegatingClos
 abstract class AbstractDownloadableComponent<ComponentSrc, ResolvedComponent> {
 
     private final Map<String, Closure> components = [:]
-    protected final Project project
+    protected final ProjectOperations projectOperations
 
     /** Adds a component source that is available on the local filesystem.
      *
@@ -117,7 +118,7 @@ abstract class AbstractDownloadableComponent<ComponentSrc, ResolvedComponent> {
     }
 
     protected AbstractDownloadableComponent(Project project) {
-        this.project = project
+        this.projectOperations = ProjectOperations.create(project)
     }
 
     /** Creates a closure that can convert from a GitLab/GitHub repository to a local cached file.
@@ -127,10 +128,13 @@ abstract class AbstractDownloadableComponent<ComponentSrc, ResolvedComponent> {
      * @return Closure that will resolve an archive from a remote reposiotry and store it locally.
      */
     protected Closure convertible(final String name, AbstractCloudGit component) {
-        final GitRepoArchiveDownloader downloader = new GitRepoArchiveDownloader(component, project)
+        final GitRepoArchiveDownloader downloader = new GitRepoArchiveDownloader(
+            component,
+            projectOperations
+        )
         final String relativePath = getRelativePathInsideArchive(component)
         return { ->
-            downloader.downloadRoot = project.buildDir
+            downloader.downloadRoot = projectOperations.buildDir.get()
             File root = downloader.archiveRoot
 
             instantiateResolvedComponent(name, relativePath ? new File(root, relativePath) : root)
@@ -139,7 +143,7 @@ abstract class AbstractDownloadableComponent<ComponentSrc, ResolvedComponent> {
 
     /** Instantiates a component of type {@code ComponentSrc}.
      *
-     * @param name Name of componenet
+     * @param name Name of component
      * @return New component source description
      */
     abstract protected ComponentSrc instantiateComponentSource(final String name)

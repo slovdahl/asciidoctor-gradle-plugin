@@ -63,7 +63,7 @@ class RevealJSPluginExtension extends AbstractDownloadableComponent<LocalRevealJ
                     StringUtils.stringize(component.name)
                 }
             }
-        }.curry(project)
+        }.curry(projectOperations)
     }
 
     /** Instantiates a resolved component.
