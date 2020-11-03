@@ -1,13 +1,13 @@
 import org.gradle.util.GradleVersion
 
 dependencies {
-    compile gradleApi()
-    compile "org.ysb33r.gradle:grolifant:${grolifantVersion}"
+    implementation gradleApi()
+    implementation "org.ysb33r.gradle:${grolifantArtifact}:${grolifantVersion}"
 
-    testCompile project(':testfixtures-jvm')
+    testImplementation project(':testfixtures-jvm')
 
     if(configurations.findByName('intTestCompile')) {
-        intTestCompile project(':testfixtures-jvm')
+        intTestImplementation project(':testfixtures-jvm')
     }
 }
 
