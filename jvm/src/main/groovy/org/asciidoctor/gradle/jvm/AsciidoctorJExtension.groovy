@@ -37,8 +37,8 @@ import org.ysb33r.grolifant.api.OperatingSystem
 
 import java.util.regex.Pattern
 
-import static org.ysb33r.grolifant.api.ClosureUtils.configureItem
-import static org.ysb33r.grolifant.api.StringUtils.stringize
+import static org.ysb33r.grolifant.api.v4.ClosureUtils.configureItem
+import static org.ysb33r.grolifant.api.v4.StringUtils.stringize
 
 /** Extension for configuring AsciidoctorJ.
  *

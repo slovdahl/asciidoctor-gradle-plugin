@@ -23,14 +23,14 @@ import org.gradle.api.file.CopySpec
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.PathSensitive
-import org.ysb33r.grolifant.api.StringUtils
+import org.ysb33r.grolifant.api.v4.StringUtils
 
 import java.nio.file.FileSystems
 import java.nio.file.Path
 
 import static org.gradle.api.tasks.PathSensitivity.RELATIVE
-import static org.ysb33r.grolifant.api.MapUtils.stringizeValues
-import static org.ysb33r.grolifant.api.StringUtils.stringize
+import static org.ysb33r.grolifant.api.v4.MapUtils.stringizeValues
+import static org.ysb33r.grolifant.api.v4.StringUtils.stringize
 
 /** Options for Reveal.js slides.
  *

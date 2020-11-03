@@ -46,8 +46,9 @@ import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.api.tasks.util.PatternSet
 import org.gradle.util.GradleVersion
-import org.ysb33r.grolifant.api.FileUtils
-import org.ysb33r.grolifant.api.StringUtils
+import org.ysb33r.grolifant.api.core.ProjectOperations
+import org.ysb33r.grolifant.api.v5.FileUtils
+import org.ysb33r.grolifant.api.v4.StringUtils
 
 import java.nio.file.Path
 import java.util.concurrent.Callable
@@ -58,7 +59,7 @@ import static org.asciidoctor.gradle.base.AsciidoctorUtils.executeDelegatingClos
 import static org.asciidoctor.gradle.base.AsciidoctorUtils.getSourceFileTree
 import static org.asciidoctor.gradle.base.AsciidoctorUtils.mapToDirectoryProvider
 import static org.gradle.api.tasks.PathSensitivity.RELATIVE
-import static org.ysb33r.grolifant.api.FileUtils.filesFromCopySpec
+import static org.ysb33r.grolifant.api.v5.FileUtils.filesFromCopySpec
 
 /** Abstract base task for Asciidoctor that can be shared between AsciidoctorJ and Asciidoctor.js.
  *
@@ -85,6 +86,7 @@ abstract class AbstractAsciidoctorBaseTask extends DefaultTask {
     private PatternSet intermediateArtifactPattern
     private final List<String> languages = []
     private final Map<String, CopySpec> languageResources = [:]
+    private final ProjectOperations projectOperations
     private final OutputOptions configuredOutputOptions = new OutputOptions()
 
     /** Logs documents as they are converted
@@ -629,6 +631,7 @@ abstract class AbstractAsciidoctorBaseTask extends DefaultTask {
 
     protected AbstractAsciidoctorBaseTask() {
         super()
+        this.projectOperations = ProjectOperations.create(project)
         inputs.files { filesFromCopySpec(getResourceCopySpec(Optional.empty())) }
             .withPathSensitivity(RELATIVE)
         this.srcDir = createDirectoryProperty(project)
@@ -640,6 +643,18 @@ abstract class AbstractAsciidoctorBaseTask extends DefaultTask {
         configuredOutputOptions
     }
 
+    /**
+     * Returns configuration-cache safe project operations.
+     *
+     * @return {@link ProjectOperations} instance as appropriate for the running Gradle version.
+     *
+     * @since 4.0
+     */
+    @Internal
+    protected ProjectOperations getProjectOperations() {
+        this.projectOperations
+    }
+
     /** Gets the CopySpec for additional resources.
      *
      * If {@code resources} was never called, it will return a default CopySpec otherwise it will return the
@@ -648,6 +663,7 @@ abstract class AbstractAsciidoctorBaseTask extends DefaultTask {
      * @param lang Language to to apply to or empty for no-language support.
      * @return A{@link CopySpec}. Never {@code null}.
      */
+    @Internal
     protected CopySpec getResourceCopySpec(Optional<String> lang) {
         this.resourceCopy ?: getDefaultResourceCopySpec(lang)
     }
@@ -660,6 +676,7 @@ abstract class AbstractAsciidoctorBaseTask extends DefaultTask {
      * @return A{@link CopySpec}. Never {@code null}.
      */
     @CompileDynamic
+    @Internal
     protected CopySpec getDefaultResourceCopySpec(Optional<String> lang) {
         project.copySpec {
             from(lang.present ? new File(sourceDir, lang.get()) : sourceDir) {
