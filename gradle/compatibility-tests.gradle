@@ -19,9 +19,9 @@ pluginManager.withPlugin('org.ysb33r.cloudci') {
         no_ci {
             gradleTest {
                 if (JavaVersion.current().java12) {
-                    versions '5.4.1', '6.0.1', '6.7'
+                    versions '5.4.1', '6.0.1', '6.8.2'
                 } else {
-                    versions '4.9', '5.0', '5.5.1', '6.0.1', '6.7'
+                    versions '4.9', '5.0', '5.5.1', '6.0.1', '6.8.2'
                 }
             }
         }

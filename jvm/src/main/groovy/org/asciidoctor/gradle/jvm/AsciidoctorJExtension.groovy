@@ -33,7 +33,7 @@ import org.gradle.api.artifacts.ResolutionStrategy
 import org.gradle.api.file.FileCollection
 import org.gradle.api.logging.LogLevel
 import org.gradle.util.GradleVersion
-import org.ysb33r.grolifant.api.OperatingSystem
+import org.ysb33r.grolifant.api.core.OperatingSystem
 
 import java.util.regex.Pattern
 

@@ -123,7 +123,7 @@ abstract class AbstractDownloadableComponent<ComponentSrc, ResolvedComponent> {
 
     /** Creates a closure that can convert from a GitLab/GitHub repository to a local cached file.
      *
-     * @param name Name or componenet
+     * @param name Name or component
      * @param component Details of component in remote repository.
      * @return Closure that will resolve an archive from a remote reposiotry and store it locally.
      */
