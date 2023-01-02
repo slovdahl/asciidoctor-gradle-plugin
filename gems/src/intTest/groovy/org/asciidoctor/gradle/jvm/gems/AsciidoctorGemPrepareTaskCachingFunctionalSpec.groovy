@@ -17,8 +17,14 @@ package org.asciidoctor.gradle.jvm.gems
 
 import org.asciidoctor.gradle.jvm.gems.internal.FunctionalSpecification
 import org.asciidoctor.gradle.testfixtures.CachingTest
+import org.gradle.testkit.runner.BuildResult
 import spock.lang.Issue
+import spock.lang.PendingFeature
 import spock.lang.Timeout
+
+import static org.asciidoctor.gradle.testfixtures.DslType.GROOVY_DSL
+import static org.asciidoctor.gradle.testfixtures.FunctionalTestSetup.getGradleRunner
+import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class AsciidoctorGemPrepareTaskCachingFunctionalSpec extends FunctionalSpecification implements CachingTest {
     private static final String DEFAULT_TASK = 'asciidoctorGemsPrepare'
@@ -134,6 +140,69 @@ class AsciidoctorGemPrepareTaskCachingFunctionalSpec extends FunctionalSpecifica
         fileInRelocatedDirectory(alternateGemPath).exists()
     }
 
+    @PendingFeature
+    @Issue('https://github.com/asciidoctor/asciidoctor-gradle-plugin/issues/658')
+    void 'Run asciidoctor with external GEM'() {
+        setup:
+        def sourceDir = testProjectDir.newFolder('src', 'docs', 'asciidoc')
+        testProjectDir.newFile('build.gradle') << """
+        plugins {
+            id 'org.asciidoctor.jvm.convert'
+            id 'org.asciidoctor.jvm.gems'
+        }
+        
+        ${offlineRepositories}
+
+        repositories {
+            ruby {
+                gems()
+            }
+        }
+
+        dependencies {
+            asciidoctorGems("rubygems:${BIBTEX_GEM_NAME}:${BIBTEX_GEM_VERSION}")
+        }
+        
+        asciidoctorj {
+            requires 'asciidoctor-bibtex'
+        }
+
+        asciidoctor {
+            dependsOn asciidoctorGemsPrepare
+            secondarySources {
+                include 'biblio.bib'
+            }
+
+            attributes 'bibtex-file': file("${sourceDir}/biblio.bib")
+        }
+        """.stripIndent()
+
+        new File(sourceDir, 'biblio.bib').text = '''
+        @book{Bogus1a,
+            author = {J. Bloggs},
+            title = {Book title},
+            publisher = {Publisher},
+            year = {2018}
+        }
+        '''.stripIndent()
+
+        new File(sourceDir, 'index.adoc').text = '''
+        = Example bibtex
+        
+        Some citation: cite:[Bogus1a]
+        '''.stripIndent()
+
+        when:
+        BuildResult result = getGradleRunner(
+                GROOVY_DSL,
+                testProjectDir.root,
+                ['asciidoctor', '-i', '-s']
+        ).forwardOutput().build()
+
+        then:
+        result.task(':asciidoctor').outcome == SUCCESS
+    }
+
     @Override
     File getBuildFile(String extraContent) {
         File buildFile = testProjectDir.newFile('build.gradle')
@@ -142,7 +211,7 @@ class AsciidoctorGemPrepareTaskCachingFunctionalSpec extends FunctionalSpecifica
                 id 'org.asciidoctor.jvm.gems'
             }
 
-            ${ -> scan ? buildScanConfiguration : '' }
+            ${scan ? buildScanConfiguration : ''}
             ${offlineRepositories}
 
             repositories {
