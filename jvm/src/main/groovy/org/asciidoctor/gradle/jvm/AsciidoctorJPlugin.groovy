@@ -20,8 +20,6 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-import static org.ysb33r.grolifant.api.v4.TaskProvider.registerTask
-
 /**
  * @since 2.0.0
  * @author Schalk W. Cronjé
@@ -42,6 +40,6 @@ class AsciidoctorJPlugin implements Plugin<Project> {
             }
         }
 
-        registerTask(project, 'asciidoctor', AsciidoctorTask, asciidoctorDefaults)
+        project.tasks.register('asciidoctor', AsciidoctorTask, asciidoctorDefaults)
     }
 }

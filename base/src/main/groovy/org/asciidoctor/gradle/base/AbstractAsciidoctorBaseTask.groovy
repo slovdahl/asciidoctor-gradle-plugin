@@ -48,8 +48,6 @@ import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.api.tasks.util.PatternSet
 import org.gradle.util.GradleVersion
 import org.ysb33r.grolifant.api.core.ProjectOperations
-import org.ysb33r.grolifant.api.v4.FileUtils
-import org.ysb33r.grolifant.api.v4.StringUtils
 
 import java.nio.file.Path
 import java.util.concurrent.Callable
@@ -89,6 +87,7 @@ abstract class AbstractAsciidoctorBaseTask extends DefaultTask {
     private final Map<String, CopySpec> languageResources = [:]
     private final OutputOptions configuredOutputOptions = new OutputOptions()
     private final Provider<String> defaultRevNumber
+    private final Provider<File> intermediateWorkDirProvider
 
     /** Logs documents as they are converted
      *
@@ -521,7 +520,7 @@ abstract class AbstractAsciidoctorBaseTask extends DefaultTask {
      */
     @Internal
     File getIntermediateWorkDir() {
-        project.file("${project.buildDir}/tmp/${FileUtils.toSafeFileName(this.name)}.intermediate")
+        this.intermediateWorkDirProvider.get()
     }
 
     /** Returns a list of all output directories by backend
@@ -644,6 +643,9 @@ abstract class AbstractAsciidoctorBaseTask extends DefaultTask {
         this.srcDir = createDirectoryProperty(project)
         this.outDir = createDirectoryProperty(project)
         this.defaultRevNumber = projectOperations.projectTools.versionProvider.orElse(Project.DEFAULT_VERSION)
+        this.intermediateWorkDirProvider = projectOperations.buildDirDescendant(
+                "/tmp/${projectOperations.fsOperations.toSafeFileName(this.name)}.intermediate"
+        )
     }
 
     @Nested
@@ -847,7 +849,7 @@ abstract class AbstractAsciidoctorBaseTask extends DefaultTask {
     @CompileDynamic
     protected void addOptionalInputProperty(String propName, Object value) {
         if (GRADLE_LT_4_3) {
-            inputs.property propName, { -> StringUtils.stringize(value) ?: '' }
+            inputs.property propName, { -> projectOperations.stringTools.stringize(value) ?: '' }
         } else {
             inputs.property(propName, value).optional(true)
         }
@@ -1041,7 +1043,7 @@ abstract class AbstractAsciidoctorBaseTask extends DefaultTask {
         Map<String, Object> defaultAttrs = defaultAttributes.findAll { k, v ->
             !userDefinedAttrKeys.contains(k)
         }.collectEntries { k, v ->
-            ["${k}@".toString(), v instanceof Serializable ? v : StringUtils.stringize(v)]
+            ["${k}@".toString(), v instanceof Serializable ? v : projectOperations.stringTools.stringize(v)]
         } as Map<String, Object>
 
         if (lang.present) {

@@ -26,10 +26,9 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.ysb33r.grolifant.api.core.ProjectOperations
 
 import java.util.concurrent.Callable
-
-import static org.ysb33r.grolifant.api.v4.MapUtils.stringizeValues
 
 /** Generates {@code .asciidoctorconfig} file.
  *
@@ -51,9 +50,11 @@ class AsciidoctorEditorConfigGenerator extends DefaultTask {
     private final List<Provider<File>> fileProviders = []
     private final List<Provider<Map<String, String>>> attributeProviders = []
     private final Provider<File> outputFile
+    private final ProjectOperations projectOperations
     private Object outputDir
 
     AsciidoctorEditorConfigGenerator() {
+        this.projectOperations = ProjectOperations.find(project)
         this.outputDir = project.projectDir
         this.outputFile = project.provider({
             new File(destinationDir, '.asciidoctorconfig')
@@ -83,7 +84,7 @@ class AsciidoctorEditorConfigGenerator extends DefaultTask {
      */
     @Input
     Map<String, String> getAttributes() {
-        stringizeValues(this.attributes)
+        projectOperations.stringTools.stringizeValues(this.attributes)
     }
 
     /** Add an additional attribute provider.
@@ -99,7 +100,7 @@ class AsciidoctorEditorConfigGenerator extends DefaultTask {
         switch (attrs) {
             case AsciidoctorAttributeProvider:
                 this.attributeProviders.add(project.provider({
-                    stringizeValues(((AsciidoctorAttributeProvider) attrs).attributes)
+                    projectOperations.stringTools.stringizeValues(((AsciidoctorAttributeProvider) attrs).attributes)
                 } as Callable<Map<String, String>>))
                 break
             default:
@@ -159,8 +160,9 @@ class AsciidoctorEditorConfigGenerator extends DefaultTask {
     @TaskAction
     void exec() {
         outputFile.get().withWriter { w ->
-            getAttributes().each { k, v ->
-                w.println ":${k}: ${v}"
+            Map<String,String> attrs = getAttributes()
+            attrs.keySet().sort().each { String k ->
+                w.println ":${k}: ${attrs[k]}"
             }
 
             additionalAttributeProviders.each { prov ->

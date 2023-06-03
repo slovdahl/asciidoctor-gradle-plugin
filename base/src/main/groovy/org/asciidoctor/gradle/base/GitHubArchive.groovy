@@ -15,15 +15,28 @@
  */
 package org.asciidoctor.gradle.base
 
+import org.ysb33r.grolifant.api.core.ProjectOperations
+
 /** Represents a remote GitHub Archive.
  *
  * @since 2.0
  */
 @SuppressWarnings('ClassNameSameAsSuperclass')
-class GitHubArchive extends org.ysb33r.grolifant.api.v4.git.GitHubArchive {
+class GitHubArchive extends org.ysb33r.grolifant.api.core.git.GitHubArchive {
 
     /** Relative path to locate the them inside the GitHub archive.
      *
      */
     Object relativePath
+
+    /**
+     * Create a downloadable Github reference.
+     *
+     * @param po {@link ProjectOperations} that is linked to the project.
+     *
+     * @since 4.0
+     */
+    GitHubArchive(ProjectOperations po) {
+        super(po)
+    }
 }

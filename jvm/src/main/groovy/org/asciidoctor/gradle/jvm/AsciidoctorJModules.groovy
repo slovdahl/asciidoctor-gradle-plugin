@@ -15,17 +15,19 @@
  */
 package org.asciidoctor.gradle.jvm
 
+import groovy.transform.CompileStatic
 import org.asciidoctor.gradle.base.AsciidoctorModuleDefinition
 import org.asciidoctor.gradle.base.ModuleNotFoundException
 import org.gradle.api.Action
-import org.ysb33r.grolifant.api.v4.StringUtils
+import org.ysb33r.grolifant.api.core.ProjectOperations
 
-import static org.ysb33r.grolifant.api.v4.ClosureUtils.configureItem
+import static org.ysb33r.grolifant.api.core.ClosureUtils.configureItem
 
 /** Define versions for standard AsciidoctorJ modules.
  *
  * @since 2.2.0
  */
+@CompileStatic
 class AsciidoctorJModules {
 
     private final Map<String, AsciidoctorModuleDefinition> index = new TreeMap<String, AsciidoctorModuleDefinition>()
@@ -36,16 +38,20 @@ class AsciidoctorJModules {
     private final AsciidoctorModuleDefinition leanpub
     private final AsciidoctorModuleDefinition groovyDsl
 
-    AsciidoctorJModules(AsciidoctorJExtension asciidoctorjs, Map<String, String> defaultVersions) {
-        this.pdf = Module.of('pdf', defaultVersions['asciidoctorj.pdf'])
-        this.epub = Module.of('epub', defaultVersions['asciidoctorj.epub'])
-        this.leanpub = Module.of('leanpub', defaultVersions['asciidoctorj.leanpub'])
-        this.diagram = Module.of('diagram', defaultVersions['asciidoctorj.diagram']) { value ->
+    AsciidoctorJModules(
+            ProjectOperations po,
+            AsciidoctorJExtension asciidoctorjs,
+            Map<String, String> defaultVersions
+    ) {
+        this.pdf = Module.of(po, 'pdf', defaultVersions['asciidoctorj.pdf'])
+        this.epub = Module.of(po, 'epub', defaultVersions['asciidoctorj.epub'])
+        this.leanpub = Module.of(po, 'leanpub', defaultVersions['asciidoctorj.leanpub'])
+        this.diagram = Module.of(po, 'diagram', defaultVersions['asciidoctorj.diagram']) { value ->
             if (value != null) {
                 asciidoctorjs.requires('asciidoctor-diagram')
             }
         }
-        this.groovyDsl = Module.of('groovyDsl', defaultVersions['asciidoctorj.groovydsl'])
+        this.groovyDsl = Module.of(po, 'groovyDsl', defaultVersions['asciidoctorj.groovydsl'])
 
         [pdf, epub, diagram, groovyDsl, leanpub].each {
             index[it.name] = it
@@ -98,19 +104,31 @@ class AsciidoctorJModules {
         private Optional<Object> version = Optional.empty()
         private final Object defaultVersion
         private final Action<Object> setAction
+        private final ProjectOperations projectOperations
 
-        static Module of(final String name, final Object defaultVersion) {
-            new Module(name, defaultVersion)
+        static Module of(final ProjectOperations po, final String name, final Object defaultVersion) {
+            new Module(po, name, defaultVersion)
         }
 
-        static Module of(final String name, final Object defaultVersion, Closure setAction) {
-            new Module(name, defaultVersion, setAction as Action<Object>)
+        static Module of(
+                final ProjectOperations po,
+                final String name,
+                final Object defaultVersion,
+                Closure setAction
+        ) {
+            new Module(po, name, defaultVersion, setAction as Action<Object>)
         }
 
-        private Module(final String name, final Object defaultVersion, Action<Object> setAction = null) {
+        private Module(
+                ProjectOperations po,
+                final String name,
+                final Object defaultVersion,
+                Action<Object> setAction = null
+        ) {
             if (defaultVersion == null) {
                 throw new ModuleNotFoundException("Default version for ${name} cannot be null")
             }
+            this.projectOperations = po
             this.name = name
             this.defaultVersion = defaultVersion
             this.setAction = setAction
@@ -136,7 +154,7 @@ class AsciidoctorJModules {
 
         @Override
         String getVersion() {
-            this.version.present ? StringUtils.stringize(this.version.get()) : null
+            this.version.present ? projectOperations.stringTools.stringize(this.version.get()) : null
         }
 
         /** Whether the component has been allocated a version.

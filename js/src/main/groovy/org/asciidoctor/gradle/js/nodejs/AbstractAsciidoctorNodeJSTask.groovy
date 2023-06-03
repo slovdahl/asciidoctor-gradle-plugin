@@ -28,7 +28,6 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkerExecutor
 import org.ysb33r.gradle.nodejs.NodeJSExtension
 import org.ysb33r.gradle.nodejs.NpmExtension
-import org.ysb33r.grolifant.api.v4.MapUtils
 
 import static org.asciidoctor.gradle.base.internal.AsciidoctorAttributes.resolveAsCacheable
 import static org.asciidoctor.gradle.js.nodejs.core.NodeJSUtils.initPackageJson
@@ -131,7 +130,7 @@ class AbstractAsciidoctorNodeJSTask extends AbstractAsciidoctorTask {
 
     @CompileDynamic
     private Map<String, String> prepareAttributesForSerialisation(final File workingSourceDir, Optional<String> lang) {
-        MapUtils.stringizeValues(prepareAttributes(
+        projectOperations.stringTools.stringizeValues(prepareAttributes(
                 workingSourceDir,
                 asciidoctorjs.attributes,
                 lang.present ? asciidoctorjs.getAttributesForLang(lang.get()) : [:],
@@ -148,7 +147,7 @@ class AbstractAsciidoctorNodeJSTask extends AbstractAsciidoctorTask {
             Optional<String> lang
     ) {
         new AsciidoctorJSRunner(
-                nodejs.resolvableNodeExecutable.executable,
+                nodejs.executable.get(),
                 project,
                 asciidoctorjsExe,
                 backend,
@@ -167,7 +166,7 @@ class AbstractAsciidoctorNodeJSTask extends AbstractAsciidoctorTask {
         initPackageJson(
                 home,
                 "${project.name}-${name}",
-                project,
+                projectOperations,
                 nodejs,
                 npm
         )

@@ -16,7 +16,6 @@
 package org.asciidoctor.gradle.base
 
 import groovy.transform.CompileStatic
-import org.ysb33r.grolifant.api.v4.MapUtils
 
 /** Loads the versions of Asciidoctor modules that are required for a specific plugin.
  *
@@ -43,7 +42,7 @@ class ModuleVersionLoader {
         try {
             Properties props = new Properties()
             props.load(stream)
-            MapUtils.stringizeValues(props as Map<String, Object>).asImmutable()
+            props.collectEntries { k, v -> [k, v.toString()] }.asImmutable() as Map<String, String>
         } finally {
             stream.close()
         }

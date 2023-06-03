@@ -1,3 +1,10 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        mavenLocal()
+    }
+}
 rootProject.name = 'asciidoctor-gradle-plugin'
 
 //include 'kindlegen-gradle'
@@ -8,17 +15,22 @@ include 'asciidoctoreditorconfig'
     project(":testfixtures/${it}").name = "testfixtures-${it}"
 }
 
-[ 'js', 'base', 'slides-export', 'jvm' ].each {
+[ 'js', 'base',  'jvm' ].each {
     include it
     project(":${it}").name = "asciidoctor-gradle-${it}"
 }
 
-[ 'epub', 'pdf', 'leanpub', 'slides' ].each {
-    include "jvm-${it}"
-    project(":jvm-${it}").name = "asciidoctor-gradle-jvm-${it}"
-}
+//[  'slides-export' ].each {
+//    include it
+//    project(":${it}").name = "asciidoctor-gradle-${it}"
+//}
 
-[ 'gems' ].each {
-    include it
-    project(":${it}").name = "asciidoctor-gradle-jvm-${it}"
-}
+//[ 'epub', 'pdf', 'leanpub', 'slides' ].each {
+//    include "jvm-${it}"
+//    project(":jvm-${it}").name = "asciidoctor-gradle-jvm-${it}"
+//}
+
+//[ 'gems' ].each {
+//    include it
+//    project(":${it}").name = "asciidoctor-gradle-jvm-${it}"
+//}

@@ -15,15 +15,28 @@
  */
 package org.asciidoctor.gradle.base
 
+import org.ysb33r.grolifant.api.core.ProjectOperations
+
 /** Represents a remote GitLab Archive.
  *
  * @since 2.0
  */
 @SuppressWarnings('ClassNameSameAsSuperclass')
-class GitLabArchive extends org.ysb33r.grolifant.api.v4.git.GitLabArchive {
+class GitLabArchive extends org.ysb33r.grolifant.api.core.git.GitLabArchive {
 
     /** Relative path to locate the them inside the GitLab archive.
      *
      */
     Object relativePath
+
+    /**
+     * Create a downloadable Gitlab reference.
+     *
+     * @param po {@link ProjectOperations} that is linked to the project.
+     *
+     * @since 4.0
+     */
+    GitLabArchive(ProjectOperations po) {
+        super(po)
+    }
 }

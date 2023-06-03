@@ -20,8 +20,9 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.UnknownDomainObjectException
-import org.ysb33r.grolifant.api.v4.git.AbstractCloudGit
-import org.ysb33r.grolifant.api.v4.git.GitRepoArchiveDownloader
+import org.ysb33r.grolifant.api.core.ProjectOperations
+import org.ysb33r.grolifant.api.core.git.AbstractCloudGit
+import org.ysb33r.grolifant.api.core.git.GitRepoArchiveDownloader
 
 import static org.asciidoctor.gradle.base.AsciidoctorUtils.executeDelegatingClosure
 
@@ -34,6 +35,9 @@ import static org.asciidoctor.gradle.base.AsciidoctorUtils.executeDelegatingClos
 abstract class AbstractDownloadableComponent<ComponentSrc, ResolvedComponent> {
 
     private final Map<String, Closure> components = [:]
+    private final ProjectOperations projectOperations
+
+    @Deprecated
     protected final Project project
 
     /** Adds a component source that is available on the local filesystem.
@@ -70,7 +74,7 @@ abstract class AbstractDownloadableComponent<ComponentSrc, ResolvedComponent> {
      * @param githubConfig Closure to configure a {@link GitHubArchive}.
      */
     void github(final String name, @DelegatesTo(GitHubArchive) Closure githubConfig) {
-        addCloudGitArchive(name, new GitHubArchive(), githubConfig)
+        addCloudGitArchive(name, new GitHubArchive(projectOperations), githubConfig)
     }
 
     /** Use a GitHub repository as a theme.
@@ -79,7 +83,7 @@ abstract class AbstractDownloadableComponent<ComponentSrc, ResolvedComponent> {
      * @param githubConfig Action to configure a {@link GitHubArchive}.
      */
     void github(final String name, Action<GitHubArchive> githubConfig) {
-        addCloudGitArchive(name, new GitHubArchive(), githubConfig as Action<AbstractCloudGit>)
+        addCloudGitArchive(name, new GitHubArchive(projectOperations), githubConfig as Action<AbstractCloudGit>)
     }
 
     /** Use a GitLab repository as a theme.
@@ -88,7 +92,7 @@ abstract class AbstractDownloadableComponent<ComponentSrc, ResolvedComponent> {
      * @param githubConfig Closure to configure a {@link GitLabArchive}.
      */
     void gitlab(final String name, @DelegatesTo(GitLabArchive) Closure gitlabConfig) {
-        addCloudGitArchive(name, new GitLabArchive(), gitlabConfig)
+        addCloudGitArchive(name, new GitLabArchive(projectOperations), gitlabConfig)
     }
 
     /** Use a GitLab repository as a theme.
@@ -97,7 +101,7 @@ abstract class AbstractDownloadableComponent<ComponentSrc, ResolvedComponent> {
      * @param githubConfig Action to configure a {@link GitLabArchive}.
      */
     void gitlab(final String name, Action<GitLabArchive> gitlabConfig) {
-        addCloudGitArchive(name, new GitLabArchive(), gitlabConfig as Action<AbstractCloudGit>)
+        addCloudGitArchive(name, new GitLabArchive(projectOperations), gitlabConfig as Action<AbstractCloudGit>)
     }
 
     /** Retrieve a component by name.
@@ -118,6 +122,7 @@ abstract class AbstractDownloadableComponent<ComponentSrc, ResolvedComponent> {
 
     protected AbstractDownloadableComponent(Project project) {
         this.project = project
+        this.projectOperations = ProjectOperations.find(project)
     }
 
     /** Creates a closure that can convert from a GitLab/GitHub repository to a local cached file.
@@ -127,7 +132,7 @@ abstract class AbstractDownloadableComponent<ComponentSrc, ResolvedComponent> {
      * @return Closure that will resolve an archive from a remote reposiotry and store it locally.
      */
     protected Closure convertible(final String name, AbstractCloudGit component) {
-        final GitRepoArchiveDownloader downloader = new GitRepoArchiveDownloader(component, project)
+        final GitRepoArchiveDownloader downloader = new GitRepoArchiveDownloader(component, projectOperations)
         final String relativePath = getRelativePathInsideArchive(component)
         return { ->
             downloader.downloadRoot = project.buildDir

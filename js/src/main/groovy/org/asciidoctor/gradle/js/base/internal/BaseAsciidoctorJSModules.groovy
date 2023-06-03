@@ -19,9 +19,9 @@ import groovy.transform.CompileStatic
 import org.asciidoctor.gradle.base.AsciidoctorModuleDefinition
 import org.asciidoctor.gradle.base.ModuleNotFoundException
 import org.asciidoctor.gradle.js.base.AsciidoctorJSModules
+import org.ysb33r.grolifant.api.core.ProjectOperations
 
-import static org.ysb33r.grolifant.api.v4.ClosureUtils.configureItem
-import static org.ysb33r.grolifant.api.v4.StringUtils.stringize
+import static org.ysb33r.grolifant.api.core.ClosureUtils.configureItem
 
 /** Define versions for standard AsciidoctorJS modules.
  *
@@ -32,6 +32,7 @@ import static org.ysb33r.grolifant.api.v4.StringUtils.stringize
 @SuppressWarnings(['ConfusingMethodName', 'ClassName'])
 @CompileStatic
 class BaseAsciidoctorJSModules implements AsciidoctorJSModules {
+    private final ProjectOperations projectOperations
     private final AsciidoctorModuleDefinition docbook
     private final Map<String, AsciidoctorModuleDefinition> index = new TreeMap<String, AsciidoctorModuleDefinition>()
 
@@ -39,10 +40,14 @@ class BaseAsciidoctorJSModules implements AsciidoctorJSModules {
      * extension.
      *
      * @param asciidoctorjs Extension that this module is attached to.
+     *
+     * @since 4.0
      */
     BaseAsciidoctorJSModules(
-        AsciidoctorModuleDefinition docbook
+            ProjectOperations projectOperations,
+            AsciidoctorModuleDefinition docbook
     ) {
+        this.projectOperations = projectOperations
         this.docbook = docbook
         index.put(docbook.name, docbook)
     }
@@ -92,5 +97,9 @@ class BaseAsciidoctorJSModules implements AsciidoctorJSModules {
 
     private boolean different(AsciidoctorModuleDefinition lhs, AsciidoctorModuleDefinition rhs) {
         lhs.version != null && rhs.version != null && stringize(lhs.version) != stringize(rhs.version)
+    }
+
+    private String stringize(Object stringy) {
+        projectOperations.stringTools.stringize(stringy)
     }
 }

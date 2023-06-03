@@ -59,10 +59,10 @@ class AsciidoctorEditorConfigIntegrationSpec extends FunctionalSpecification {
 
         then:
         normalisedLineEndings(outputFile.text) == """:${key1}: ${value1}
-:gradle-project-name: ${projName}
-:gradle-project-group: ${groupName}
 :gradle-project-version: ${projVer}
+:gradle-project-name: ${projName}
 :${key2}: ${value2}
+:gradle-project-group: ${groupName}
 :${key3}: ${value3}
 """
     }

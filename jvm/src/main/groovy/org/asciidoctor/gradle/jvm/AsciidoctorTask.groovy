@@ -21,7 +21,6 @@ import org.gradle.api.Action
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.util.PatternSet
 import org.gradle.workers.WorkerExecutor
-import org.ysb33r.grolifant.api.v4.FileUtils
 
 import javax.inject.Inject
 
@@ -87,7 +86,7 @@ class AsciidoctorTask extends AbstractAsciidoctorTask {
         } else {
             folderName = "asciidoc${name.capitalize()}"
         }
-        final String safeFolderName = FileUtils.toSafeFileName(folderName)
+        final String safeFolderName = projectOperations.fsOperations.toSafeFileName(folderName)
         setConvention(project, sourceDirProperty, project.layout.projectDirectory.dir("src/docs/${folderName}"))
         setConvention(outputDirProperty, project.layout.buildDirectory.dir("docs/${safeFolderName}"))
     }

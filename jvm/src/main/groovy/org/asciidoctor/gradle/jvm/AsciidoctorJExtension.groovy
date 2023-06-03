@@ -28,13 +28,12 @@ import org.gradle.api.artifacts.*
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.file.FileCollection
 import org.gradle.api.logging.LogLevel
-import org.gradle.util.GradleVersion
+import org.ysb33r.grolifant.api.core.LegacyLevel
 import org.ysb33r.grolifant.api.core.OperatingSystem
 
 import java.util.regex.Pattern
 
-import static org.ysb33r.grolifant.api.v4.ClosureUtils.configureItem
-import static org.ysb33r.grolifant.api.v4.StringUtils.stringize
+import static org.ysb33r.grolifant.api.core.ClosureUtils.configureItem
 
 /** Extension for configuring AsciidoctorJ.
  *
@@ -61,7 +60,7 @@ class AsciidoctorJExtension extends AbstractImplementationEngineExtension {
     private static final String JRUBY_COMPLETE_DEPENDENCY = JavaExecUtils.JRUBY_COMPLETE_DEPENDENCY
     private static final String ASCIIDOCTOR_DEPENDENCY_PROPERTY_NAME = 'asciidoctorj'
     private static final OperatingSystem OS = OperatingSystem.current()
-    private static final boolean GUAVA_REQUIRED_FOR_EXTERNALS = GradleVersion.current() >= GradleVersion.version('4.8')
+    private static final boolean GUAVA_REQUIRED_FOR_EXTERNALS = !LegacyLevel.PRE_4_8
 
     private Object version
     private Optional<Object> jrubyVersion
@@ -104,7 +103,7 @@ class AsciidoctorJExtension extends AbstractImplementationEngineExtension {
     AsciidoctorJExtension(Project project) {
         super(project, 'asciidoctorj-extension')
         this.version = defaultVersionMap[ASCIIDOCTOR_DEPENDENCY_PROPERTY_NAME]
-        this.modules = new AsciidoctorJModules(this, defaultVersionMap)
+        this.modules = new AsciidoctorJModules(projectOperations, this, defaultVersionMap)
         this.defaultLogLevel = project.logging.level
         if (this.version == null) {
             throw new ModuleNotFoundException('Default version for AsciidoctorJ must be defined. ' +
@@ -122,7 +121,7 @@ class AsciidoctorJExtension extends AbstractImplementationEngineExtension {
     @SuppressWarnings('ThisReferenceEscapesConstructor')
     AsciidoctorJExtension(Task task) {
         super(task, NAME)
-        this.modules = new AsciidoctorJModules(this, defaultVersionMap)
+        this.modules = new AsciidoctorJModules(projectOperations, this, defaultVersionMap)
         this.configurations = task.project.configurations
         this.dependencies = task.project.dependencies
     }
@@ -250,9 +249,9 @@ class AsciidoctorJExtension extends AbstractImplementationEngineExtension {
      */
     FileCollection getGemPaths() {
         if (!task || onlyTaskGems) {
-            projectOperations.files(this.gemPaths)
+            projectOperations.fsOperations.files(this.gemPaths)
         } else {
-            projectOperations.files(this.gemPaths) + extFromProject.gemPaths
+            projectOperations.fsOperations.files(this.gemPaths) + extFromProject.gemPaths
         }
     }
 
@@ -306,12 +305,12 @@ class AsciidoctorJExtension extends AbstractImplementationEngineExtension {
     String getJrubyVersion() {
         if (task) {
             if (this.jrubyVersion != null && this.jrubyVersion.present) {
-                stringize(this.jrubyVersion.get())
+                projectOperations.stringTools.stringize(this.jrubyVersion.get())
             } else {
                 extFromProject.getJrubyVersion()
             }
         } else {
-            this.jrubyVersion?.present ? stringize(this.jrubyVersion.get()) : null
+            this.jrubyVersion?.present ? projectOperations.stringTools.stringize(this.jrubyVersion.get()) : null
         }
     }
 
@@ -628,15 +627,16 @@ class AsciidoctorJExtension extends AbstractImplementationEngineExtension {
      */
     String getVersion() {
         if (task) {
-            this.version ? stringize(this.version) : extFromProject.getVersion()
+            this.version ? projectOperations.stringTools.stringize(this.version) : extFromProject.getVersion()
         } else {
-            stringize(this.version)
+            projectOperations.stringTools.stringize(this.version)
         }
     }
 
     /** Set a new version to use.
      *
-     * @param v New version to be used. Can be of anything that be be resolved by {@link stringize ( Object o )}
+     * @param v New version to be used. Can be of anything that be be resolved by
+     * {@link org.ysb33r.grolifant.api.core.StringTools#stringize ( Object o )}
      */
     void setVersion(Object v) {
         this.version = v
@@ -795,7 +795,7 @@ class AsciidoctorJExtension extends AbstractImplementationEngineExtension {
     @SuppressWarnings('Instanceof')
     private List<Pattern> patternize(final List<Object> patterns) {
         Transform.toList(patterns) {
-            (Pattern) (it instanceof Pattern ? it : ~/${stringize(it)}/)
+            (Pattern) (it instanceof Pattern ? it : ~/${projectOperations.stringTools.stringize(it)}/)
         }
     }
 

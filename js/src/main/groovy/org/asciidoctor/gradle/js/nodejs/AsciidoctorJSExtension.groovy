@@ -119,7 +119,7 @@ class AsciidoctorJSExtension extends AbstractAsciidoctorJSExtension {
      * @Return Set of strings in a format suitable for {@code npm --require}.
      */
     Set<String> getRequires() {
-        Set<String> reqs = [].toSet()
+        Set<String> reqs = (Set)[].toSet()
 
         final String docbook = moduleVersion(modules.docbook)
         if (docbook) {
@@ -138,7 +138,7 @@ class AsciidoctorJSExtension extends AbstractAsciidoctorJSExtension {
     @SuppressWarnings('UnnecessaryGetter')
     Configuration getConfiguration() {
         final String docbook = moduleVersion(modules.docbook)
-        final NodeJSDependencyFactory factory = new NodeJSDependencyFactory(project, nodejs, npm)
+        final NodeJSDependencyFactory factory = new NodeJSDependencyFactory(projectOperations, nodejs, npm)
         final List<SelfResolvingDependency> deps = [factory.createDependency(PACKAGE_ASCIIDOCTOR, getVersion())]
 
         if (docbook) {
@@ -173,7 +173,7 @@ class AsciidoctorJSExtension extends AbstractAsciidoctorJSExtension {
      */
     @Override
     protected AsciidoctorJSModules createModulesConfiguration() {
-        new AsciidoctorNodeJSModules(this, defaultVersionMap)
+        new AsciidoctorNodeJSModules(projectOperations, defaultVersionMap)
     }
 
     private List<NpmDependency> getAllAdditionalRequires() {

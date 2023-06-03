@@ -25,7 +25,10 @@ import org.ysb33r.grolifant.api.v4.StringUtils
 /** Utilities for dealing with Configurations
  *
  * @since 3.0.0
+ *
+ * @deprecated
  */
+@Deprecated
 @CompileStatic
 class ConfigurationUtils {
 
