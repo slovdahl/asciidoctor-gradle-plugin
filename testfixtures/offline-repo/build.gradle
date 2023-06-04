@@ -1,4 +1,4 @@
-import fi.linuxbox.gradle.download.worker.DownloadWorkerTask
+import org.ysb33r.gradle.ivypot.OfflineRepositorySync
 
 apply plugin: 'base'
 apply plugin: 'fi.linuxbox.download.worker'
@@ -9,12 +9,12 @@ repositories {
     mavenCentral()
 }
 
-syncRemoteRepositories {
+tasks.named('syncRemoteRepositories', OfflineRepositorySync) {
 
     group 'Off-line repository'
     description 'Build Ivy repository from configurations'
 
-    repoRoot project.ext.offlineRepoRoot
+    repoDetails { root = project.ext.offlineRepoRoot }
 
     inputs.file file("${rootProject.projectDir}/module-versions.properties")
     outputs.files project.ext.offlineRepoDescriptionFile
@@ -24,7 +24,7 @@ syncRemoteRepositories {
         mavenCentral()
         maven { url 'https://plugins.gradle.org/m2/' }
 
-        if (version.endsWith('-SNAPSHOT')) {
+        if (project.version.toString().endsWith('-SNAPSHOT')) {
             mavenLocal()
         }
     }
@@ -34,41 +34,41 @@ syncRemoteRepositories {
             rootUri = 'https://nodejs.org/dist/'
             artifactPattern = 'v[revision]/[module]-v[revision]-[classifier].[ext]'
         }
-   }
+    }
 
     addAllProjects()
 
-    doLast {
-        project.ext.offlineRepoDescriptionFile.withWriter { w ->
-            w.println 'repositories {'
-            w.print ' ' * 4
-            w.println 'ivy {'
-            w.print ' ' * 8
-            w.println "name 'OfflineRepo'"
-            w.print ' ' * 8
-            w.println "layout 'gradle'"
-            w.print ' ' * 8
-            w.println "url '${file(repoRoot).absoluteFile.toURI()}'"
-            w.print ' ' * 4
-            w.println '}'
-            w.println '}'
-        }
-
-        file("${project.ext.offlineRepoDescriptionFile}.kts").withWriter { w ->
-            w.println 'repositories {'
-            w.print ' ' * 4
-            w.println 'ivy {'
-            w.print ' ' * 8
-            w.println 'name = "OfflineRepo"'
-            w.print ' ' * 8
-            w.println 'layout("gradle")'
-            w.print ' ' * 8
-            w.println "url = uri(\"${file(repoRoot).absoluteFile.toURI()}\")"
-            w.print ' ' * 4
-            w.println '}'
-            w.println '}'
-        }
-    }
+//    doLast {
+//        project.ext.offlineRepoDescriptionFile.withWriter { w ->
+//            w.println 'repositories {'
+//            w.print ' ' * 4
+//            w.println 'ivy {'
+//            w.print ' ' * 8
+//            w.println "name 'OfflineRepo'"
+//            w.print ' ' * 8
+//            w.println "layout 'gradle'"
+//            w.print ' ' * 8
+//            w.println "url '${file(repoRoot).absoluteFile.toURI()}'"
+//            w.print ' ' * 4
+//            w.println '}'
+//            w.println '}'
+//        }
+//
+//        file("${project.ext.offlineRepoDescriptionFile}.kts").withWriter { w ->
+//            w.println 'repositories {'
+//            w.print ' ' * 4
+//            w.println 'ivy {'
+//            w.print ' ' * 8
+//            w.println 'name = "OfflineRepo"'
+//            w.print ' ' * 8
+//            w.println 'layout("gradle")'
+//            w.print ' ' * 8
+//            w.println "url = uri(\"${file(repoRoot).absoluteFile.toURI()}\")"
+//            w.print ' ' * 4
+//            w.println '}'
+//            w.println '}'
+//        }
+//    }
 
     onlyIf { !gradle.startParameter.offline }
 }

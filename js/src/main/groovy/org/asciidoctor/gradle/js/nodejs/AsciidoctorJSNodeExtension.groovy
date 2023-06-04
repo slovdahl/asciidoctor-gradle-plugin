@@ -20,7 +20,8 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.ysb33r.gradle.nodejs.NodeJSExtension
 
-/** An extension to configure Node.js.
+/**
+ * An extension to configure Node.js.
  *
  * @since 3.0
  */
@@ -33,6 +34,6 @@ class AsciidoctorJSNodeExtension extends NodeJSExtension {
     }
 
     AsciidoctorJSNodeExtension(Task task) {
-        super(task, NAME)
+        super(task, task.project.extensions.getByType(AsciidoctorJSNodeExtension))
     }
 }

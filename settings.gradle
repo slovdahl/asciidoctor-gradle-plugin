@@ -7,7 +7,6 @@ pluginManagement {
 }
 rootProject.name = 'asciidoctor-gradle-plugin'
 
-//include 'kindlegen-gradle'
 include 'asciidoctoreditorconfig'
 
 ['offline-repo', 'jvm'].each {
@@ -25,12 +24,12 @@ include 'asciidoctoreditorconfig'
 //    project(":${it}").name = "asciidoctor-gradle-${it}"
 //}
 
-//[ 'epub', 'pdf', 'leanpub', 'slides' ].each {
-//    include "jvm-${it}"
-//    project(":jvm-${it}").name = "asciidoctor-gradle-jvm-${it}"
-//}
+[ 'epub', 'pdf', 'leanpub'  ].each {
+    include "jvm-${it}"
+    project(":jvm-${it}").name = "asciidoctor-gradle-jvm-${it}"
+}
 
-//[ 'gems' ].each {
-//    include it
-//    project(":${it}").name = "asciidoctor-gradle-jvm-${it}"
-//}
+[ 'gems' /*, 'slides'*/ ].each {
+    include it
+    project(":${it}").name = "asciidoctor-gradle-jvm-${it}"
+}

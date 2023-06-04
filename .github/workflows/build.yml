@@ -88,7 +88,8 @@ jobs:
     - name: Integration tests (without slides)
       uses: gradle/gradle-build-action@v2
       with:
-        arguments: -i -s --console=plain --no-build-cache test intTest remoteTest -x asciidoctor-gradle-slides-export:intTest -x asciidoctor-gradle-jvm-slides:intTest
+        arguments: -i -s --console=plain --no-build-cache test intTest remoteTest  -x asciidoctor-gradle-jvm-slides:intTest
+#        arguments: -i -s --console=plain --no-build-cache test intTest remoteTest -x asciidoctor-gradle-slides-export:intTest -x asciidoctor-gradle-jvm-slides:intTest
 #    - name: Integration tests (slides only)
 #      uses: eskatos/gradle-command-action@v1
 #      with:
